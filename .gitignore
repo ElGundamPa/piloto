@@ -33,5 +33,5 @@ yarn-error.log*
 next-env.d.ts
 
 # Large video files - use CDN or external hosting instead
+# Only exclude the old video file, allow others
 Public/video.mp4
-*.mp4
