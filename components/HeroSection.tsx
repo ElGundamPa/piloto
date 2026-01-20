@@ -20,19 +20,60 @@ export default function HeroSection() {
   useEffect(() => {
     // Forzar la reproducción del video inmediatamente
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Si falla el autoplay, intentar de nuevo
-        setTimeout(() => {
-          videoRef.current?.play()
-        }, 100)
-      })
+      const video = videoRef.current
+      
+      // Asegurar que el loop esté activado programáticamente
+      video.loop = true
+      
+      // Manejar errores de carga
+      const handleError = (e: Event) => {
+        console.error('Error al cargar el video:', e)
+      }
+      
+      // Manejar el fin del video para reiniciarlo manualmente si es necesario
+      const handleEnded = () => {
+        video.currentTime = 0
+        video.play().catch(() => {
+          // Si falla, intentar de nuevo
+          setTimeout(() => {
+            video.currentTime = 0
+            video.play()
+          }, 100)
+        })
+      }
+      
+      const handleLoadedData = () => {
+        video.play().catch((error) => {
+          console.warn('Error al reproducir el video:', error)
+          // Si falla el autoplay, intentar de nuevo después de una interacción
+          setTimeout(() => {
+            video.play().catch(() => {
+              console.warn('Segundo intento falló')
+            })
+          }, 100)
+        })
+      }
+
+      video.addEventListener('error', handleError)
+      video.addEventListener('ended', handleEnded)
+      video.addEventListener('loadeddata', handleLoadedData)
+      
+      // Si el video ya está cargado, reproducir inmediatamente
+      if (video.readyState >= 2) {
+        handleLoadedData()
+      }
 
       // Iniciar fade in del video
       const timer = setTimeout(() => {
         setVideoVisible(true)
       }, 100)
 
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(timer)
+        video.removeEventListener('error', handleError)
+        video.removeEventListener('ended', handleEnded)
+        video.removeEventListener('loadeddata', handleLoadedData)
+      }
     }
   }, [])
 
@@ -59,7 +100,7 @@ export default function HeroSection() {
         }`}
         aria-hidden="true"
       >
-        <source src="/video.mp4" type="video/mp4" />
+        <source src="/videos/video.mp4" type="video/mp4" />
       </video>
 
       {/* Overlay oscuro mejorado para máximo contraste - Jerarquía visual */}
