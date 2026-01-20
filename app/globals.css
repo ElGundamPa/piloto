@@ -1,0 +1,420 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables CSS para consistencia de diseño */
+@layer base {
+  :root {
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    
+    /* Variables de animación - Sistema de timing consistente */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    --duration-slower: 700ms;
+    
+    /* Easing functions */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Mejoras de accesibilidad y legibilidad */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900;
+  }
+
+  /* Focus visible para accesibilidad - Ley de Contraste */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+
+  /* Respeta preferencias de movimiento reducido */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Componentes reutilizables con Tailwind */
+@layer components {
+  /* Botón primario - Ley de Fitts (grande y accesible) */
+  /* Mínimo 44x44px en móvil para cumplir con estándares de accesibilidad */
+  .btn-primary {
+    @apply px-8 py-4 min-h-[44px] bg-primary-500 text-white font-semibold rounded-xl 
+           shadow-lg hover:bg-primary-600 active:bg-primary-700 active:scale-[0.98]
+           transition-all duration-300 ease-out transform hover:scale-105 
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+           disabled:hover:scale-100;
+  }
+
+  /* Botón secundario */
+  .btn-secondary {
+    @apply px-8 py-4 min-h-[44px] bg-secondary-500 text-white font-semibold rounded-xl 
+           shadow-lg hover:bg-secondary-600 active:bg-secondary-700 active:scale-[0.98]
+           transition-all duration-300 ease-out transform hover:scale-105 
+           focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+  }
+
+  /* Botón WhatsApp - Color distintivo y reconocible - Ley de Fitts */
+  .btn-whatsapp {
+    @apply px-6 py-3 min-h-[44px] bg-whatsapp text-white font-semibold rounded-xl 
+           shadow-lg hover:shadow-xl hover:bg-[#20BA5A] active:scale-[0.98]
+           transition-all duration-300 ease-out transform hover:scale-105 
+           flex items-center gap-2 justify-center
+           focus:outline-none focus:ring-2 focus:ring-whatsapp focus:ring-offset-2;
+  }
+
+  /* Card con efecto hover - Feedback visual - Ley de Continuidad */
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl 
+           transition-all duration-300 ease-out transform hover:-translate-y-1
+           border border-gray-100 cursor-pointer;
+  }
+
+  /* Input fields - Micro-interacciones mejoradas */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl
+           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+           transition-all duration-300 ease-out
+           focus:outline-none;
+  }
+
+  input[type="text"]:hover,
+  input[type="email"]:hover,
+  input[type="tel"]:hover,
+  input[type="date"]:hover,
+  textarea:hover,
+  select:hover {
+    @apply border-gray-400;
+  }
+
+  /* Enlaces con underline animado - Ley de Continuidad */
+  a:not(.btn-primary):not(.btn-secondary):not(.btn-whatsapp) {
+    @apply transition-colors duration-300 ease-out;
+  }
+
+  a:not(.btn-primary):not(.btn-secondary):not(.btn-whatsapp):hover {
+    @apply text-primary-600;
+  }
+
+  /* Sección con padding consistente - Mobile-first responsive */
+  .section {
+    @apply py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-5 md:px-6 lg:px-8;
+  }
+
+  /* Container con max-width y centrado */
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Heading con jerarquía visual clara - Tipografía moderna unificada - Mobile-first */
+  .heading-1 {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
+           font-bold font-sans 
+           text-gray-900 leading-[1.1] tracking-tight;
+  }
+
+  .heading-2 {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
+           font-bold font-sans 
+           text-gray-900 mb-4 leading-tight tracking-tight;
+  }
+
+  .heading-3 {
+    @apply text-xl sm:text-2xl md:text-3xl 
+           font-semibold font-sans 
+           text-gray-900 leading-tight;
+  }
+
+  /* Tipografía para hero - Alta legibilidad y animada - Mobile-first */
+  .hero-title {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl
+           font-extrabold font-sans
+           leading-[1.1] tracking-tight
+           drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)];
+  }
+
+  .hero-subtitle {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
+           font-normal font-sans
+           text-white/95 leading-relaxed
+           drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)];
+  }
+
+  /* Animaciones para hero - Más dinámicas */
+  .animate-slide-up-fade {
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .animate-fade-in-delay {
+    animation: fadeInDelay 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideUpFade {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDelay {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes gradient-text {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient-text {
+    animation: gradient-text 3s ease infinite;
+  }
+}
+
+/* Utilidades personalizadas */
+@layer utilities {
+  /* Animaciones sutiles */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Animación de fade in para contenido hero - Más rápida y suave */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Fallback para video - Solo visible si el video falla */
+  .video-fallback {
+    transition: opacity 1s ease-in;
+  }
+
+  video:not([src]) ~ .video-fallback,
+  video[error] ~ .video-fallback {
+    opacity: 1;
+  }
+
+  /* Gradientes para diseño moderno */
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-600;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-secondary-400 to-secondary-600;
+  }
+
+  /* Animación de barra de progreso para welcome screen */
+  @keyframes progress-bar {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  .animate-progress-bar {
+    animation: progress-bar 3s ease-out forwards;
+  }
+
+  /* Loading spinner para estados de carga */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Skeleton loading para contenido que carga */
+  @keyframes skeleton-loading {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 0px,
+      #f8f8f8 40px,
+      #f0f0f0 80px
+    );
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+  }
+
+  /* Smooth transitions para elementos que aparecen */
+  .transition-appear {
+    transition: opacity var(--duration-slow) var(--ease-out),
+                transform var(--duration-slow) var(--ease-out);
+  }
+
+  /* Animación slide-up para formulario */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .search-form-entrance {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  /* Hover mejorado para botones de búsqueda */
+  .search-submit-btn {
+    transition: all 300ms ease-out;
+  }
+
+  .search-submit-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .search-submit-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Tabs animados */
+  .tab-button {
+    transition: all 300ms ease-out;
+  }
+
+  .tab-button.active {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  /* Inputs mejorados */
+  .form-input-focus {
+    transition: all 300ms ease-out;
+  }
+
+  .form-input-focus:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+  }
+
+  /* Prevenir zoom en iOS al hacer focus */
+  @media (max-width: 768px) {
+    input[type="date"],
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  /* Sombra 3xl para efectos más pronunciados */
+  .shadow-3xl {
+    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Forzar color negro en labels del formulario de búsqueda - Alta especificidad */
+  .search-form-entrance label,
+  form.search-form-entrance label,
+  .search-form-entrance label[for],
+  form.search-form-entrance label[for] {
+    color: #000000 !important;
+  }
+
+  /* Asegurar que los labels dentro del contenedor del formulario también tengan color negro */
+  div[class*="max-w-6xl"] form label,
+  div[class*="max-w-6xl"] label[for] {
+    color: #000000 !important;
+  }
+
+  /* Animaciones para el regalo del código promocional */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.5s ease-out forwards;
+  }
+}
