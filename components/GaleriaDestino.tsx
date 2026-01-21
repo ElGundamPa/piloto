@@ -30,13 +30,6 @@ export default function GaleriaDestino({ destino }: GaleriaDestinoProps) {
     { src: destino.imagen3, alt: `${destino.nombre} - Imagen 3` },
   ]
 
-  // Función helper para detectar si necesita unoptimized
-  const necesitaUnoptimized = (src: string) => {
-    const tieneExtension = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(src)
-    const esArchivoSinExtension = /\/\d+$/.test(src) // Termina en /número sin extensión
-    return !tieneExtension || esArchivoSinExtension
-  }
-
   const handleImageClick = (index: number) => {
     setLightboxIndex(index)
     setLightboxOpen(true)
@@ -86,7 +79,6 @@ export default function GaleriaDestino({ destino }: GaleriaDestinoProps) {
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  unoptimized={necesitaUnoptimized(imagen.src)}
                 />
                 {/* Overlay sutil en hover */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>

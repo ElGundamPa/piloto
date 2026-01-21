@@ -119,13 +119,6 @@ export default function ImageLightbox({
     }
   }
 
-  // Función helper para detectar si necesita unoptimized
-  const necesitaUnoptimized = (src: string) => {
-    const tieneExtension = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(src)
-    const esArchivoSinExtension = /\/\d+$/.test(src)
-    return !tieneExtension || esArchivoSinExtension
-  }
-
   if (!isOpen || !images.length) return null
 
   const currentImage = images[index]
@@ -260,7 +253,6 @@ export default function ImageLightbox({
             className="object-contain animate-fade-in"
             sizes="100vw"
             priority
-            unoptimized={necesitaUnoptimized(currentImage.src)}
           />
         </div>
       </div>

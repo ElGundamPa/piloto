@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import SearchForm from './SearchForm'
 
 /**
@@ -17,106 +18,138 @@ export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [videoVisible, setVideoVisible] = useState(false)
   const hasInteractedRef = useRef(false)
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
 
   useEffect(() => {
-    if (videoRef.current) {
-      const video = videoRef.current
-      
-      // Asegurar configuración para autoplay en móviles
-      video.loop = true
-      video.muted = true
-      video.controls = false
-      
-      // Función para intentar reproducir el video
-      const attemptPlay = async () => {
-        try {
-          if (video.paused) {
-            video.muted = true // Asegurar que esté silenciado
-            await video.play()
-            setVideoVisible(true)
-          }
-        } catch (error) {
-          // Silenciar errores - esperamos interacción del usuario
-        }
-      }
-      
-      // Manejar errores de carga
-      const handleError = (e: Event) => {
-        console.error('Error al cargar el video:', e)
-      }
-      
-      // Manejar el fin del video
-      const handleEnded = () => {
-        video.currentTime = 0
-        video.play().catch(() => {
-          setTimeout(() => {
-            video.currentTime = 0
-            video.play()
-          }, 100)
-        })
-      }
-      
-      const handleLoadedData = () => {
-        attemptPlay()
-      }
+    // Objetivo performance: NO descargar el video (32MB) en el primer paint.
+    // Lo habilitamos en idle o tras primera interacción del usuario.
+    const enableVideo = () => setShouldLoadVideo(true)
 
-      // Función para manejar la primera interacción del usuario
-      // Esto es crucial en móviles donde el autoplay está bloqueado
-      const handleFirstInteraction = () => {
-        if (!hasInteractedRef.current && video.paused) {
-          hasInteractedRef.current = true
-          attemptPlay()
-        }
+    const interactionEvents = ['touchstart', 'touchend', 'click', 'scroll', 'keydown'] as const
+    const handleFirstInteraction = () => {
+      if (!hasInteractedRef.current) {
+        hasInteractedRef.current = true
       }
+      enableVideo()
+    }
 
-      video.addEventListener('error', handleError)
-      video.addEventListener('ended', handleEnded)
-      video.addEventListener('loadeddata', handleLoadedData)
-      
-      // Intentar reproducir inmediatamente si los metadatos están listos
-      if (video.readyState >= 1) {
-        attemptPlay()
-      }
+    interactionEvents.forEach((event) => {
+      document.addEventListener(event, handleFirstInteraction, { once: true, passive: true })
+    })
 
-      // Agregar listeners globales para capturar cualquier interacción
-      // En móviles, esto permite que el video comience después del primer touch/scroll
-      const interactionEvents = ['touchstart', 'touchend', 'click', 'scroll', 'keydown']
-      interactionEvents.forEach(event => {
-        document.addEventListener(event, handleFirstInteraction, { once: true, passive: true })
+    // También habilitar en idle (desktop) para que el video aparezca sin bloquear el render inicial
+    const w = globalThis as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    let idleId: number | null = null
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+    if (typeof w.requestIdleCallback === 'function') {
+      idleId = w.requestIdleCallback(enableVideo, { timeout: 1500 })
+    } else {
+      timeoutId = setTimeout(enableVideo, 1200)
+    }
+
+    return () => {
+      interactionEvents.forEach((event) => {
+        document.removeEventListener(event, handleFirstInteraction)
       })
-
-      // También intentar reproducir cuando el video puede reproducirse
-      video.addEventListener('canplay', attemptPlay, { once: true })
-
-      // Iniciar fade in del video
-      const timer = setTimeout(() => {
-        if (!video.paused || hasInteractedRef.current) {
-          setVideoVisible(true)
-        }
-      }, 100)
-
-      return () => {
-        clearTimeout(timer)
-        video.removeEventListener('error', handleError)
-        video.removeEventListener('ended', handleEnded)
-        video.removeEventListener('loadeddata', handleLoadedData)
-        video.removeEventListener('canplay', attemptPlay)
-        interactionEvents.forEach(event => {
-          document.removeEventListener(event, handleFirstInteraction)
-        })
+      if (idleId !== null && typeof w.cancelIdleCallback === 'function') {
+        w.cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId)
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!shouldLoadVideo) return
+    if (!videoRef.current) return
+
+    const video = videoRef.current
+
+    // Asegurar configuración para autoplay en móviles
+    video.loop = true
+    video.muted = true
+    video.controls = false
+
+    // Función para intentar reproducir el video
+    const attemptPlay = async () => {
+      try {
+        if (video.paused) {
+          video.muted = true
+          await video.play()
+          setVideoVisible(true)
+        }
+      } catch {
+        // Autoplay puede fallar (móvil). Se intentará tras interacción.
+      }
+    }
+
+    const handleError = (e: Event) => {
+      console.error('Error al cargar el video:', e)
+    }
+
+    const handleEnded = () => {
+      video.currentTime = 0
+      video.play().catch(() => {
+        setTimeout(() => {
+          video.currentTime = 0
+          video.play()
+        }, 100)
+      })
+    }
+
+    const handleLoadedData = () => {
+      attemptPlay()
+    }
+
+    video.addEventListener('error', handleError)
+    video.addEventListener('ended', handleEnded)
+    video.addEventListener('loadeddata', handleLoadedData)
+    video.addEventListener('canplay', attemptPlay, { once: true })
+
+    // Forzar inicio de carga una vez insertado el <source/>
+    video.load()
+
+    // Intentar play inmediatamente (desktop) o quedará para interacción en móvil
+    attemptPlay()
+
+    // Fade in inicial
+    const timer = setTimeout(() => {
+      if (!video.paused || hasInteractedRef.current) {
+        setVideoVisible(true)
+      }
+    }, 120)
+
+    return () => {
+      clearTimeout(timer)
+      video.removeEventListener('error', handleError)
+      video.removeEventListener('ended', handleEnded)
+      video.removeEventListener('loadeddata', handleLoadedData)
+      video.removeEventListener('canplay', attemptPlay)
+    }
+  }, [shouldLoadVideo])
 
   return (
     <section 
       className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden pt-20 sm:pt-24 md:pt-32 lg:pt-40 pb-12 sm:pb-16 md:pb-20"
       aria-label="Sección principal"
     >
-      {/* Fallback de fondo - Gradiente */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500 transition-opacity duration-500 ${
-        videoVisible ? 'opacity-0' : 'opacity-100'
-      }`}></div>
+      {/* Fondo ligero (optimizado por Next/Image) para paint rápido */}
+      <div className="absolute inset-0">
+        <Image
+          src="/imagenes/Bogota/2.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className={`object-cover transition-opacity duration-500 ${videoVisible ? 'opacity-0' : 'opacity-100'}`}
+          aria-hidden="true"
+        />
+      </div>
       
       {/* Video de fondo */}
       <video
@@ -125,7 +158,7 @@ export default function HeroSection() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 hide-video-controls"
         style={{
           opacity: videoVisible ? 1 : 0,
@@ -133,7 +166,7 @@ export default function HeroSection() {
         }}
         aria-hidden="true"
       >
-        <source src="/videos/video.mp4" type="video/mp4" />
+        {shouldLoadVideo && <source src="/videos/video.mp4" type="video/mp4" />}
       </video>
 
       {/* Overlay oscuro mejorado para máximo contraste - Jerarquía visual */}

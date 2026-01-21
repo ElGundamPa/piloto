@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { Destino, formatPrice } from '@/lib/destinos'
@@ -18,12 +16,6 @@ interface DestinoCardProps {
 }
 
 export default function DestinoCard({ destino }: DestinoCardProps) {
-  // Detectar si la imagen no tiene extensión (caso de Bogotá)
-  // Si la ruta termina en un número sin extensión, necesita unoptimized
-  const tieneExtension = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(destino.imagen)
-  const esArchivoSinExtension = /\/\d+$/.test(destino.imagen) // Termina en /número sin extensión
-  const necesitaUnoptimized = !tieneExtension || esArchivoSinExtension
-  
   return (
     <Link href={`/destinos/${destino.slug}`}>
       <article className="card group overflow-hidden cursor-pointer h-full flex flex-col">
@@ -35,7 +27,6 @@ export default function DestinoCard({ destino }: DestinoCardProps) {
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            unoptimized={necesitaUnoptimized}
           />
           {/* Overlay sutil en hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent 
