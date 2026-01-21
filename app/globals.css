@@ -417,4 +417,47 @@
   .animate-slideDown {
     animation: slideDown 0.5s ease-out forwards;
   }
+
+  /* Ocultar controles nativos del video en móviles */
+  .hide-video-controls video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .hide-video-controls::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .hide-video-controls::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  .hide-video-controls::-webkit-media-controls-play-button {
+    display: none !important;
+  }
+
+  .hide-video-controls::-webkit-media-controls-start-playback-button {
+    display: none !important;
+  }
+
+  /* Ocultar controles para navegadores móviles */
+  video.hide-video-controls {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-play-button {
+    display: none !important;
+  }
+
+  video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+  }
 }

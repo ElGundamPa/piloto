@@ -16,25 +16,39 @@ import SearchForm from './SearchForm'
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [videoVisible, setVideoVisible] = useState(false)
+  const hasInteractedRef = useRef(false)
 
   useEffect(() => {
-    // Forzar la reproducción del video inmediatamente
     if (videoRef.current) {
       const video = videoRef.current
       
-      // Asegurar que el loop esté activado programáticamente
+      // Asegurar configuración para autoplay en móviles
       video.loop = true
+      video.muted = true
+      video.controls = false
+      
+      // Función para intentar reproducir el video
+      const attemptPlay = async () => {
+        try {
+          if (video.paused) {
+            video.muted = true // Asegurar que esté silenciado
+            await video.play()
+            setVideoVisible(true)
+          }
+        } catch (error) {
+          // Silenciar errores - esperamos interacción del usuario
+        }
+      }
       
       // Manejar errores de carga
       const handleError = (e: Event) => {
         console.error('Error al cargar el video:', e)
       }
       
-      // Manejar el fin del video para reiniciarlo manualmente si es necesario
+      // Manejar el fin del video
       const handleEnded = () => {
         video.currentTime = 0
         video.play().catch(() => {
-          // Si falla, intentar de nuevo
           setTimeout(() => {
             video.currentTime = 0
             video.play()
@@ -43,29 +57,42 @@ export default function HeroSection() {
       }
       
       const handleLoadedData = () => {
-        video.play().catch((error) => {
-          console.warn('Error al reproducir el video:', error)
-          // Si falla el autoplay, intentar de nuevo después de una interacción
-          setTimeout(() => {
-            video.play().catch(() => {
-              console.warn('Segundo intento falló')
-            })
-          }, 100)
-        })
+        attemptPlay()
+      }
+
+      // Función para manejar la primera interacción del usuario
+      // Esto es crucial en móviles donde el autoplay está bloqueado
+      const handleFirstInteraction = () => {
+        if (!hasInteractedRef.current && video.paused) {
+          hasInteractedRef.current = true
+          attemptPlay()
+        }
       }
 
       video.addEventListener('error', handleError)
       video.addEventListener('ended', handleEnded)
       video.addEventListener('loadeddata', handleLoadedData)
       
-      // Si el video ya está cargado, reproducir inmediatamente
-      if (video.readyState >= 2) {
-        handleLoadedData()
+      // Intentar reproducir inmediatamente si los metadatos están listos
+      if (video.readyState >= 1) {
+        attemptPlay()
       }
+
+      // Agregar listeners globales para capturar cualquier interacción
+      // En móviles, esto permite que el video comience después del primer touch/scroll
+      const interactionEvents = ['touchstart', 'touchend', 'click', 'scroll', 'keydown']
+      interactionEvents.forEach(event => {
+        document.addEventListener(event, handleFirstInteraction, { once: true, passive: true })
+      })
+
+      // También intentar reproducir cuando el video puede reproducirse
+      video.addEventListener('canplay', attemptPlay, { once: true })
 
       // Iniciar fade in del video
       const timer = setTimeout(() => {
-        setVideoVisible(true)
+        if (!video.paused || hasInteractedRef.current) {
+          setVideoVisible(true)
+        }
       }, 100)
 
       return () => {
@@ -73,6 +100,10 @@ export default function HeroSection() {
         video.removeEventListener('error', handleError)
         video.removeEventListener('ended', handleEnded)
         video.removeEventListener('loadeddata', handleLoadedData)
+        video.removeEventListener('canplay', attemptPlay)
+        interactionEvents.forEach(event => {
+          document.removeEventListener(event, handleFirstInteraction)
+        })
       }
     }
   }, [])
@@ -95,9 +126,11 @@ export default function HeroSection() {
         loop
         playsInline
         preload="auto"
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-          videoVisible ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 hide-video-controls"
+        style={{
+          opacity: videoVisible ? 1 : 0,
+          pointerEvents: 'none',
+        }}
         aria-hidden="true"
       >
         <source src="/videos/video.mp4" type="video/mp4" />
