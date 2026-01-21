@@ -18,8 +18,10 @@ export default function WelcomeScreen() {
   const [progress, setProgress] = useState(0)
   const [planeFlyingUp, setPlaneFlyingUp] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
+  const [flyUpProgress, setFlyUpProgress] = useState(0)
   const animationFrameRef = useRef<number>()
   const startTimeRef = useRef<number>()
+  const flyUpStartTimeRef = useRef<number>()
 
   useEffect(() => {
     // Verificar si ya se mostró en las últimas 24 horas
@@ -58,19 +60,33 @@ export default function WelcomeScreen() {
       if (newProgress < 95) {
         animationFrameRef.current = requestAnimationFrame(animate)
       } else {
-        // Al llegar al 95%, iniciar vuelo hacia arriba
+        // Al llegar al 95%, iniciar vuelo hacia arriba con animación gradual
         setPlaneFlyingUp(true)
-        // Completar la barra al 100%
-        setTimeout(() => {
-          setProgress(100)
-        }, 100)
-        // Después del vuelo, iniciar transición de salida
-        setTimeout(() => {
-          setIsExiting(true)
-          setTimeout(() => {
-            handleClose()
-          }, 700) // Duración de la transición de salida
-        }, 700) // Duración del vuelo hacia arriba
+        flyUpStartTimeRef.current = Date.now()
+        const flyUpDuration = 900 // 0.9 segundos para volar hacia arriba
+        
+        const animateFlyUp = () => {
+          const flyUpElapsed = Date.now() - (flyUpStartTimeRef.current || 0)
+          const flyUpProgressValue = Math.min(flyUpElapsed / flyUpDuration, 1)
+          
+          setFlyUpProgress(flyUpProgressValue)
+          // Completar la barra gradualmente durante el vuelo
+          setProgress(95 + (flyUpProgressValue * 5)) // 95% a 100%
+          
+          if (flyUpProgressValue < 1) {
+            animationFrameRef.current = requestAnimationFrame(animateFlyUp)
+          } else {
+            // Después del vuelo, iniciar transición de salida
+            setTimeout(() => {
+              setIsExiting(true)
+              setTimeout(() => {
+                handleClose()
+              }, 600) // Duración de la transición de salida
+            }, 200) // Pequeño delay antes de iniciar salida
+          }
+        }
+        
+        animateFlyUp()
       }
     }
 
@@ -92,16 +108,33 @@ export default function WelcomeScreen() {
     // Esperar a que termine la animación antes de ocultar
     setTimeout(() => {
       setShouldShow(false)
-    }, 700)
+    }, 600)
   }
 
   if (!shouldShow) return null
 
-  // Calcular posición del avión
-  const planeX = `${progress}%`
-  const planeY = planeFlyingUp ? '-50px' : '-25px'
-  const planeRotation = planeFlyingUp ? -45 : 0
-  const planeOpacity = planeFlyingUp ? 0 : 1
+  // Calcular posición del avión - debe ir ADELANTE de la barra (6% adelante)
+  const planeProgress = Math.min(progress + (planeFlyingUp ? 0 : 6), 100)
+  const planeX = `${planeProgress}%`
+  
+  // Posición Y: mientras sigue la barra está a -30px, al volar sube suavemente
+  const baseY = -30 // Posición base sobre la barra
+  const finalY = -150 // Posición final cuando vuela hacia arriba (más alto)
+  const planeY = planeFlyingUp 
+    ? `${baseY + (finalY - baseY) * flyUpProgress}px`
+    : `${baseY}px`
+  
+  // Rotación: horizontal (0°) mientras sigue la barra, gradual hacia arriba al volar
+  const baseRotation = 0 // Horizontal
+  const finalRotation = -25 // Ligeramente hacia arriba (no tan pronunciado como -45)
+  const planeRotation = planeFlyingUp
+    ? baseRotation + (finalRotation - baseRotation) * flyUpProgress
+    : baseRotation
+  
+  // Opacidad: visible mientras sigue la barra, fade out suave al volar
+  const planeOpacity = planeFlyingUp
+    ? Math.max(0, 1 - flyUpProgress * 1.1) // Fade out más suave
+    : 1
 
   return (
     <div
@@ -181,15 +214,16 @@ export default function WelcomeScreen() {
 
           {/* Avión SVG */}
           <div
-            className="absolute transition-all duration-75 ease-out"
+            className="absolute"
             style={{
               left: `calc(${planeX} - 16px)`,
               bottom: planeY,
               transform: `rotate(${planeRotation}deg)`,
               opacity: planeOpacity,
               transition: planeFlyingUp
-                ? 'left 0.1s ease-out, bottom 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s ease-out'
+                ? 'left 0.05s linear, bottom 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.9s ease-out'
                 : 'left 0.1s ease-out',
+              willChange: planeFlyingUp ? 'transform, opacity, bottom' : 'left',
             }}
           >
             <svg
@@ -198,12 +232,11 @@ export default function WelcomeScreen() {
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-white"
+              className="text-white drop-shadow-lg"
             >
               <path
                 d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
                 fill="currentColor"
-                className="drop-shadow-md"
               />
             </svg>
           </div>
