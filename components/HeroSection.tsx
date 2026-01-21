@@ -31,6 +31,20 @@ export default function HeroSection() {
         hasInteractedRef.current = true
       }
       enableVideo()
+
+      // En producción (HTTPS), muchos navegadores bloquean autoplay hasta interacción.
+      // Si el video ya está montado/cargado por idle, aquí reintentamos el play.
+      // Si todavía no está montado, el `requestAnimationFrame` permite que el <source/> se inserte primero.
+      requestAnimationFrame(() => {
+        const video = videoRef.current
+        if (!video) return
+        if (video.paused) {
+          video.muted = true
+          video.play().then(() => setVideoVisible(true)).catch(() => {
+            // Si aún falla, se quedará el fallback (imagen) sin romper UX.
+          })
+        }
+      })
     }
 
     interactionEvents.forEach((event) => {
