@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import SearchForm from './SearchForm'
+import heroPoster from '../public/imagenes/Bogota/2.webp'
 
 /**
  * Hero Section Rediseñado - Estilo Decameron
@@ -22,8 +23,15 @@ export default function HeroSection() {
 
   useEffect(() => {
     // Objetivo performance: NO descargar el video (32MB) en el primer paint.
-    // Lo habilitamos en idle o tras primera interacción del usuario.
+    // Lo habilitamos muy pronto (200ms) o tras primera interacción del usuario.
     const enableVideo = () => setShouldLoadVideo(true)
+
+    // Si el usuario tiene "Ahorro de datos", no cargamos video automáticamente.
+    // Solo se intentará tras interacción.
+    const saveData =
+      typeof navigator !== 'undefined' &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Boolean((navigator as any)?.connection?.saveData)
 
     const interactionEvents = ['touchstart', 'touchend', 'click', 'scroll', 'keydown'] as const
     const handleFirstInteraction = () => {
@@ -40,7 +48,7 @@ export default function HeroSection() {
         if (!video) return
         if (video.paused) {
           video.muted = true
-          video.play().then(() => setVideoVisible(true)).catch(() => {
+          video.play().catch(() => {
             // Si aún falla, se quedará el fallback (imagen) sin romper UX.
           })
         }
@@ -51,30 +59,15 @@ export default function HeroSection() {
       document.addEventListener(event, handleFirstInteraction, { once: true, passive: true })
     })
 
-    // También habilitar en idle (desktop) para que el video aparezca sin bloquear el render inicial
-    const w = globalThis as unknown as {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
-      cancelIdleCallback?: (id: number) => void
-    }
-    let idleId: number | null = null
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-
-    if (typeof w.requestIdleCallback === 'function') {
-      idleId = w.requestIdleCallback(enableVideo, { timeout: 1500 })
-    } else {
-      timeoutId = setTimeout(enableVideo, 1200)
-    }
+    // Habilitar muy pronto para que en producción el video empiece a bajar rápido.
+    // (sin esto, el overlay se ve "gris" mientras el video/imagen cargan en red real)
+    const earlyTimer = saveData ? null : setTimeout(enableVideo, 200)
 
     return () => {
       interactionEvents.forEach((event) => {
         document.removeEventListener(event, handleFirstInteraction)
       })
-      if (idleId !== null && typeof w.cancelIdleCallback === 'function') {
-        w.cancelIdleCallback(idleId)
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
+      if (earlyTimer) clearTimeout(earlyTimer)
     }
   }, [])
 
@@ -95,7 +88,6 @@ export default function HeroSection() {
         if (video.paused) {
           video.muted = true
           await video.play()
-          setVideoVisible(true)
         }
       } catch {
         // Autoplay puede fallar (móvil). Se intentará tras interacción.
@@ -104,6 +96,11 @@ export default function HeroSection() {
 
     const handleError = (e: Event) => {
       console.error('Error al cargar el video:', e)
+    }
+
+    // Solo mostramos el video cuando REALMENTE está reproduciendo (evita pantalla gris)
+    const handlePlaying = () => {
+      setVideoVisible(true)
     }
 
     const handleEnded = () => {
@@ -123,6 +120,7 @@ export default function HeroSection() {
     video.addEventListener('error', handleError)
     video.addEventListener('ended', handleEnded)
     video.addEventListener('loadeddata', handleLoadedData)
+    video.addEventListener('playing', handlePlaying)
     video.addEventListener('canplay', attemptPlay, { once: true })
 
     // Forzar inicio de carga una vez insertado el <source/>
@@ -143,6 +141,7 @@ export default function HeroSection() {
       video.removeEventListener('error', handleError)
       video.removeEventListener('ended', handleEnded)
       video.removeEventListener('loadeddata', handleLoadedData)
+      video.removeEventListener('playing', handlePlaying)
       video.removeEventListener('canplay', attemptPlay)
     }
   }, [shouldLoadVideo])
@@ -152,14 +151,18 @@ export default function HeroSection() {
       className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden pt-20 sm:pt-24 md:pt-32 lg:pt-40 pb-12 sm:pb-16 md:pb-20"
       aria-label="Sección principal"
     >
+      {/* Fondo base inmediato: evita "gris" mientras cargan imagen/video */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500" />
+
       {/* Fondo ligero (optimizado por Next/Image) para paint rápido */}
       <div className="absolute inset-0">
         <Image
-          src="/imagenes/Bogota/2.webp"
+          src={heroPoster}
           alt=""
           fill
           priority
           sizes="100vw"
+          placeholder="blur"
           className={`object-cover transition-opacity duration-500 ${videoVisible ? 'opacity-0' : 'opacity-100'}`}
           aria-hidden="true"
         />
@@ -172,7 +175,8 @@ export default function HeroSection() {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
+        poster={heroPoster.src}
         className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 hide-video-controls"
         style={{
           opacity: videoVisible ? 1 : 0,
