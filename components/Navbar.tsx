@@ -109,7 +109,11 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
-          <div className="fixed top-16 sm:top-18 md:top-20 lg:top-22 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-5xl px-3 sm:px-4 animate-fade-in">
+          {/* 
+            Nota UX: `top-18/top-20/top-22` no son clases Tailwind estándar.
+            Usamos valores arbitrarios válidos para mantener el mismo “offset” visual bajo el navbar fijo.
+          */}
+          <div className="fixed top-[72px] sm:top-[80px] md:top-[88px] lg:top-[96px] left-1/2 transform -translate-x-1/2 z-40 w-full max-w-5xl px-3 sm:px-4 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-3 sm:p-4 border border-gray-200/50">
               {navItems.map((item) => (
                 <Link

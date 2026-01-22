@@ -133,7 +133,7 @@ export default function DestinoPage({ params }: PageProps) {
       <WhatsAppFloatButton />
       
       {/* Footer */}
-      <Footer />
+      <Footer showHelpCta={false} />
     </main>
   )
 }

@@ -22,16 +22,32 @@ export default function WelcomeScreen() {
   const animationFrameRef = useRef<number>()
   const startTimeRef = useRef<number>()
   const takeoffStartTimeRef = useRef<number>()
+  const skipButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    // Verificar si ya se mostró en las últimas 24 horas
-    const lastShown = localStorage.getItem('nextStation_welcome_shown')
-    const lastShownTime = lastShown ? parseInt(lastShown, 10) : 0
-    const now = Date.now()
-    const twentyFourHours = 24 * 60 * 60 * 1000
+    // Respeta preferencias de movimiento reducido:
+    // UX: si el usuario pide menos animaciones, no mostramos pantalla de bienvenida.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) {
+      try {
+        sessionStorage.setItem('nextStation_welcome_shown_session', '1')
+      } catch {
+        // noop
+      }
+      return
+    }
 
-    // Mostrar si nunca se ha mostrado o han pasado más de 24 horas
-    if (!lastShown || (now - lastShownTime) > twentyFourHours) {
+    // Mostrar solo una vez por sesión (menos fricción para usuarios recurrentes)
+    const shownThisSession =
+      (() => {
+        try {
+          return sessionStorage.getItem('nextStation_welcome_shown_session') === '1'
+        } catch {
+          return false
+        }
+      })()
+
+    if (!shownThisSession) {
       setShouldShow(true)
       // Pequeño delay para que el componente se monte primero
       setTimeout(() => {
@@ -46,6 +62,35 @@ export default function WelcomeScreen() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!shouldShow || isExiting) return
+
+    // Bloquear scroll mientras el overlay está visible
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    // Permitir cerrar con Escape
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        handleSkip()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [shouldShow, isExiting])
+
+  useEffect(() => {
+    if (!isVisible || isExiting) return
+    // Enfocar el botón “Saltar” para teclado/lectores de pantalla
+    const t = setTimeout(() => skipButtonRef.current?.focus(), 120)
+    return () => clearTimeout(t)
+  }, [isVisible, isExiting])
 
   const startProgressAnimation = () => {
     startTimeRef.current = Date.now()
@@ -102,8 +147,12 @@ export default function WelcomeScreen() {
   const handleClose = () => {
     setIsVisible(false)
     setIsExiting(true)
-    // Guardar timestamp en localStorage
-    localStorage.setItem('nextStation_welcome_shown', Date.now().toString())
+    // Guardar: mostrado en esta sesión
+    try {
+      sessionStorage.setItem('nextStation_welcome_shown_session', '1')
+    } catch {
+      // noop
+    }
     // Esperar a que termine la animación antes de ocultar
     setTimeout(() => {
       setShouldShow(false)
@@ -152,6 +201,8 @@ export default function WelcomeScreen() {
       className={`fixed inset-0 z-[100] bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500 flex items-center justify-center transition-opacity duration-700 ${
         isExiting ? 'opacity-0' : isVisible ? 'opacity-100' : 'opacity-0'
       }`}
+      role="dialog"
+      aria-modal="true"
       aria-label="Pantalla de bienvenida"
     >
       {/* Contenido principal */}
@@ -256,6 +307,7 @@ export default function WelcomeScreen() {
 
       {/* Botón Skip */}
       <button
+        ref={skipButtonRef}
         onClick={handleSkip}
         className={`absolute top-6 right-6 px-4 py-2 text-white/80 hover:text-white text-sm font-medium transition-all duration-300 delay-1000 z-10 ${
           isExiting

@@ -16,7 +16,7 @@ import { getWhatsAppUrl, WHATSAPP_MESSAGES } from '@/lib/config'
  * - Acordeones para organizar contenido en móvil
  * - Mejora de legibilidad y UX
  */
-export default function Footer() {
+export default function Footer({ showHelpCta = true }: { showHelpCta?: boolean }) {
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
   const currentYear = new Date().getFullYear()
 
@@ -50,27 +50,29 @@ export default function Footer() {
   return (
     <>
       {/* CTA de Ayuda - Antes del footer */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-6 px-4">
-        <div className="container-custom max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-center sm:text-left">
-              <h3 className="text-base sm:text-lg font-semibold mb-1">
-                ¿Necesitas ayuda?
-              </h3>
-              <p className="text-sm sm:text-base text-white/90">
-                Habla con nosotros por WhatsApp
-              </p>
+      {showHelpCta && (
+        <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-6 px-4">
+          <div className="container-custom max-w-6xl mx-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <h3 className="text-base sm:text-lg font-semibold mb-1">
+                  ¿Necesitas ayuda?
+                </h3>
+                <p className="text-sm sm:text-base text-white/90">
+                  Habla con nosotros por WhatsApp
+                </p>
+              </div>
+              <button
+                onClick={handleWhatsAppClick}
+                className="min-h-[44px] px-6 py-3 bg-white text-primary-600 font-semibold text-sm sm:text-base rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/50"
+                aria-label="Contactar por WhatsApp"
+              >
+                Chatear ahora
+              </button>
             </div>
-            <button
-              onClick={handleWhatsAppClick}
-              className="min-h-[44px] px-6 py-3 bg-white text-primary-600 font-semibold text-sm sm:text-base rounded-xl shadow-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-white/50"
-              aria-label="Contactar por WhatsApp"
-            >
-              Chatear ahora
-            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer principal - Con padding inferior para el botón WhatsApp */}
       <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200 pb-20 sm:pb-24 md:pb-12">

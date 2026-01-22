@@ -32,8 +32,11 @@ export default function DestinoCard({ destino }: DestinoCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent 
                         opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
-          {/* Precio destacado - Visible en hover */}
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {/* 
+            Precio destacado
+            UX: en móvil no hay hover → debe verse sin depender de group-hover.
+          */}
+          <div className="absolute top-4 right-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
             <div className="bg-white px-4 py-2 rounded-lg shadow-lg">
               <span className="text-xs text-gray-600">Desde</span>
               <p className="text-lg font-bold text-primary-600">{formatPrice(destino.precioDesde)}</p>
@@ -54,9 +57,10 @@ export default function DestinoCard({ destino }: DestinoCardProps) {
           </p>
 
           {/* CTA - Ley de Fitts */}
-          <button className="w-full btn-primary text-sm sm:text-base text-center group-hover:bg-primary-600">
+          {/* Nota: Evitamos un <button> dentro de un <Link> (interactivo anidado) */}
+          <span className="w-full btn-primary text-sm sm:text-base text-center group-hover:bg-primary-600">
             Ver viaje
-          </button>
+          </span>
         </div>
       </article>
     </Link>

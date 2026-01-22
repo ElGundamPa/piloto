@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { destinos } from '@/lib/destinos'
 import { WHATSAPP_NUMBER } from '@/lib/config'
 
@@ -20,6 +20,20 @@ export default function SearchForm() {
   const [ninos, setNinos] = useState(0)
   const [codigoPromo, setCodigoPromo] = useState('')
   const [showGift, setShowGift] = useState(true)
+  const [isGuestsOpen, setIsGuestsOpen] = useState(false)
+  const [guestsOpenUp, setGuestsOpenUp] = useState(false)
+  const guestsRef = useRef<HTMLDivElement>(null)
+  const guestsButtonRef = useRef<HTMLButtonElement>(null)
+  const guestsPopoverId = useId()
+
+  const pad2 = (n: number) => String(n).padStart(2, '0')
+  const addDaysISO = (isoDate: string, days: number) => {
+    // isoDate esperado: YYYY-MM-DD
+    const [y, m, d] = isoDate.split('-').map(Number)
+    const dt = new Date(Date.UTC(y, (m || 1) - 1, d || 1))
+    dt.setUTCDate(dt.getUTCDate() + days)
+    return `${dt.getUTCFullYear()}-${pad2(dt.getUTCMonth() + 1)}-${pad2(dt.getUTCDate())}`
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,14 +55,61 @@ export default function SearchForm() {
 
   // Obtener fecha mínima (hoy)
   const today = new Date().toISOString().split('T')[0]
-  const minCheckOut = checkIn || today
+  // UX: para hoteles, el check-out normalmente es mínimo al día siguiente
+  const minCheckOut = checkIn ? addDaysISO(checkIn, 1) : today
 
+  useEffect(() => {
+    if (!isGuestsOpen) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      const el = guestsRef.current
+      if (!el) return
+      if (e.target instanceof Node && !el.contains(e.target)) {
+        setIsGuestsOpen(false)
+      }
+    }
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setIsGuestsOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isGuestsOpen])
+
+  const toggleGuests = () => {
+    setIsGuestsOpen((prev) => {
+      const next = !prev
+      if (next) {
+        // Desktop: si no hay espacio abajo, abre hacia arriba (flip)
+        requestAnimationFrame(() => {
+          const btn = guestsButtonRef.current
+          if (!btn) return
+          const rect = btn.getBoundingClientRect()
+          const viewportH = window.innerHeight || 0
+          const spaceBelow = viewportH - rect.bottom
+          // Estimación del popover (px). Preferimos abrir arriba si queda muy justo.
+          const estimatedPopoverH = 320
+          setGuestsOpenUp(spaceBelow < estimatedPopoverH + 16)
+        })
+      }
+      return next
+    })
+  }
+
+  // Desktop: evita estirarse demasiado en 16:9 (más “premium”)
   return (
-    <div className="w-full max-w-5xl md:max-w-full mx-auto px-4 sm:px-6 md:px-4 lg:px-6 xl:px-8">
-      <form 
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-4 lg:px-6 xl:px-8 md:max-w-5xl lg:max-w-6xl">
+      <form
         onSubmit={handleSubmit}
-        className="bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200/50 p-4 sm:p-5 md:p-4 lg:p-6 transform transition-all duration-500 hover:shadow-3xl search-form-entrance"
-        style={{ color: '#000000' }}
+        className="bg-white/90 text-gray-900 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl ring-1 ring-black/5 p-4 sm:p-5 md:p-4 lg:p-6 transform transition-all duration-500 hover:shadow-3xl search-form-entrance md:bg-white/80 md:backdrop-blur-xl md:shadow-xl md:hover:shadow-2xl md:py-4 lg:py-5"
       >
         {/* Tabs - Centrados */}
         <div className="flex justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 md:mb-5 lg:mb-6">
@@ -87,17 +148,18 @@ export default function SearchForm() {
 
         {/* Campos de búsqueda - Mobile: vertical, Desktop: horizontal - Mejor distribuidos */}
         <div className="w-full md:w-auto">
-          <div className="grid grid-cols-1 md:grid-cols-10 gap-4 sm:gap-4 md:gap-2.5 lg:gap-3 xl:gap-4 mb-4 sm:mb-6 md:mb-4 lg:mb-5">
+          {/* UX: alinear todos los campos al “baseline” inferior en desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 sm:gap-4 md:gap-2.5 lg:gap-3 xl:gap-4 mb-4 sm:mb-6 md:mb-4 lg:mb-5">
             {/* Destino/Hotel */}
-            <div className="md:col-span-3">
-              <label htmlFor="destino" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5" style={{ color: '#000000' }}>
+            <div className="md:col-span-4">
+              <label htmlFor="destino" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-gray-900">
                 Destino o Hotel
               </label>
               <select
                 id="destino"
                 value={destino}
                 onChange={(e) => setDestino(e.target.value)}
-                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-white form-input-focus min-h-[44px] hover:border-gray-300"
+                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-white form-input-focus min-h-[44px] hover:border-gray-300 shadow-sm md:py-2.5 md:text-sm"
                 required
               >
                 <option value="">Seleccionar destino</option>
@@ -110,23 +172,32 @@ export default function SearchForm() {
 
             {/* Check-in */}
             <div className="md:col-span-2">
-              <label htmlFor="checkin" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5" style={{ color: '#000000' }}>
+              <label htmlFor="checkin" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-gray-900">
                 Check-in
               </label>
               <input
                 type="date"
                 id="checkin"
                 value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
+                onChange={(e) => {
+                  const nextCheckIn = e.target.value
+                  setCheckIn(nextCheckIn)
+                  if (!nextCheckIn) return
+
+                  const nextMinCheckOut = addDaysISO(nextCheckIn, 1)
+                  if (!checkOut || checkOut < nextMinCheckOut) {
+                    setCheckOut(nextMinCheckOut)
+                  }
+                }}
                 min={today}
-                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 form-input-focus min-h-[44px] hover:border-gray-300 bg-white"
+                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 form-input-focus min-h-[44px] hover:border-gray-300 bg-white shadow-sm md:py-2.5 md:text-sm"
                 required
               />
             </div>
 
             {/* Check-out */}
             <div className="md:col-span-2">
-              <label htmlFor="checkout" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5" style={{ color: '#000000' }}>
+              <label htmlFor="checkout" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-gray-900">
                 Check-out
               </label>
               <input
@@ -135,46 +206,274 @@ export default function SearchForm() {
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
                 min={minCheckOut}
-                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 form-input-focus min-h-[44px] hover:border-gray-300 bg-white"
+                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 form-input-focus min-h-[44px] hover:border-gray-300 bg-white shadow-sm md:py-2.5 md:text-sm"
                 required
               />
             </div>
 
-            {/* Habitaciones y Huéspedes */}
-            <div className="md:col-span-2">
-              <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5" style={{ color: '#000000' }}>
-                Habitaciones
+            {/* Habitaciones y Huéspedes (campo compacto + popover) */}
+            <div ref={guestsRef} className="md:col-span-3 relative">
+              <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-gray-900">
+                Habitaciones y huéspedes
               </label>
-              <div className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg sm:rounded-xl p-1.5 sm:p-2 min-h-[44px] hover:border-gray-300 transition-all duration-300">
-                <button
-                  type="button"
-                  onClick={() => setHabitaciones(Math.max(1, habitaciones - 1))}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
-                  aria-label="Reducir habitaciones"
+
+              <button
+                ref={guestsButtonRef}
+                type="button"
+                onClick={toggleGuests}
+                className="w-full min-h-[44px] px-3 sm:px-4 py-3 sm:py-3.5 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base bg-white hover:border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 form-input-focus flex items-center justify-between gap-3 shadow-sm md:py-2.5 md:text-sm"
+                aria-haspopup="dialog"
+                aria-expanded={isGuestsOpen}
+                aria-controls={guestsPopoverId}
+              >
+                {/* En md el espacio es más corto: mostramos versión compacta para evitar truncar */}
+                <span className="truncate text-gray-900 md:hidden">
+                  {habitaciones} hab • {adultos} adultos • {ninos} niños
+                </span>
+                {/* Desktop: no usar ellipsis → texto compacto y sin truncate */}
+                <span className="text-gray-900 hidden md:inline lg:hidden whitespace-nowrap">
+                  {habitaciones} hab · {adultos} ad · {ninos} ni
+                </span>
+                <span className="text-gray-900 hidden lg:inline whitespace-nowrap">
+                  {habitaciones} hab • {adultos} adultos • {ninos} niños
+                </span>
+                <svg
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isGuestsOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
-                  −
-                </button>
-                <span className="flex-1 text-center font-semibold text-gray-900 text-sm sm:text-base">{habitaciones}</span>
-                <button
-                  type="button"
-                  onClick={() => setHabitaciones(habitaciones + 1)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
-                  aria-label="Aumentar habitaciones"
-                >
-                  +
-                </button>
-              </div>
-              <p className="mt-1.5 text-xs text-gray-600">{adultos} adultos, {ninos} niños</p>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isGuestsOpen && (
+                <>
+                  {/* Móvil: bottom-sheet (más cómodo y sin desbordes) */}
+                  <div
+                    className="fixed inset-0 z-[70] bg-black/30 backdrop-blur-sm md:hidden"
+                    onClick={() => setIsGuestsOpen(false)}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="fixed left-0 right-0 bottom-0 z-[80] md:hidden"
+                    role="dialog"
+                    aria-label="Seleccionar habitaciones y huéspedes"
+                  >
+                    <div className="mx-auto w-full max-w-lg rounded-t-2xl bg-white shadow-2xl border border-gray-200 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-base font-semibold text-gray-900">Habitaciones y huéspedes</p>
+                        <button
+                          type="button"
+                          onClick={() => setIsGuestsOpen(false)}
+                          className="min-h-[44px] px-3 py-2 text-sm font-semibold text-primary-700 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors"
+                          aria-label="Cerrar selector de huéspedes"
+                        >
+                          Listo
+                        </button>
+                      </div>
+
+                      {/* Habitaciones */}
+                      <div className="flex items-center justify-between gap-3 min-h-[44px]">
+                        <span className="text-sm sm:text-base font-semibold text-gray-900">Habitaciones</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setHabitaciones(Math.max(1, habitaciones - 1))}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Reducir habitaciones"
+                          >
+                            −
+                          </button>
+                          <span className="w-8 text-center font-semibold text-gray-900" aria-label={`Habitaciones: ${habitaciones}`}>
+                            {habitaciones}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setHabitaciones(habitaciones + 1)}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Aumentar habitaciones"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Adultos */}
+                      <div className="flex items-center justify-between gap-3 min-h-[44px] mt-3">
+                        <span className="text-sm sm:text-base font-semibold text-gray-900">Adultos</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setAdultos(Math.max(1, adultos - 1))}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Reducir adultos"
+                          >
+                            −
+                          </button>
+                          <span className="w-8 text-center font-semibold text-gray-900" aria-label={`Adultos: ${adultos}`}>
+                            {adultos}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setAdultos(adultos + 1)}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Aumentar adultos"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Niños */}
+                      <div className="flex items-center justify-between gap-3 min-h-[44px] mt-3">
+                        <span className="text-sm sm:text-base font-semibold text-gray-900">Niños</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setNinos(Math.max(0, ninos - 1))}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Reducir niños"
+                          >
+                            −
+                          </button>
+                          <span className="w-8 text-center font-semibold text-gray-900" aria-label={`Niños: ${ninos}`}>
+                            {ninos}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setNinos(ninos + 1)}
+                            className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-lg"
+                            aria-label="Aumentar niños"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="mt-4 text-xs text-gray-600">
+                        {adultos} adultos, {ninos} niños
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Desktop: popover anclado (no invade el botón y no se sale del viewport) */}
+                  <div
+                    id={guestsPopoverId}
+                    className={`hidden md:block absolute right-0 bg-white border border-gray-200 rounded-xl shadow-2xl p-3 lg:p-4 z-[60] w-[360px] max-w-[calc(100vw-2rem)] ${
+                      guestsOpenUp ? 'bottom-full mb-2' : 'top-full mt-2'
+                    }`}
+                    role="dialog"
+                    aria-label="Seleccionar habitaciones y huéspedes"
+                  >
+                  {/* Habitaciones */}
+                  <div className="flex items-center justify-between gap-3 min-h-[44px]">
+                    <span className="text-sm sm:text-base font-semibold text-gray-900">Habitaciones</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setHabitaciones(Math.max(1, habitaciones - 1))}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Reducir habitaciones"
+                      >
+                        −
+                      </button>
+                      <span
+                        className="w-8 text-center font-semibold text-gray-900 text-sm sm:text-base"
+                        aria-label={`Habitaciones: ${habitaciones}`}
+                      >
+                        {habitaciones}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setHabitaciones(habitaciones + 1)}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Aumentar habitaciones"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Adultos */}
+                  <div className="flex items-center justify-between gap-3 min-h-[44px] mt-3">
+                    <span className="text-sm sm:text-base font-semibold text-gray-900">Adultos</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAdultos(Math.max(1, adultos - 1))}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Reducir adultos"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center font-semibold text-gray-900 text-sm sm:text-base" aria-label={`Adultos: ${adultos}`}>
+                        {adultos}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setAdultos(adultos + 1)}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Aumentar adultos"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Niños */}
+                  <div className="flex items-center justify-between gap-3 min-h-[44px] mt-3">
+                    <span className="text-sm sm:text-base font-semibold text-gray-900">Niños</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNinos(Math.max(0, ninos - 1))}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Reducir niños"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center font-semibold text-gray-900 text-sm sm:text-base" aria-label={`Niños: ${ninos}`}>
+                        {ninos}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setNinos(ninos + 1)}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-300 flex items-center justify-center hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 font-semibold text-gray-700 text-base sm:text-lg"
+                        aria-label="Aumentar niños"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <p className="text-xs text-gray-600">
+                      {adultos} adultos, {ninos} niños
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsGuestsOpen(false)}
+                      className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary-700 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors"
+                      aria-label="Cerrar selector de huéspedes"
+                    >
+                      Listo
+                    </button>
+                  </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Botón buscar */}
             <div className="md:col-span-1">
-              <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 opacity-0 pointer-events-none" style={{ color: '#000000' }}>
+              <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 opacity-0 pointer-events-none text-gray-900">
                 Buscar
               </label>
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 sm:py-3.5 px-3 sm:px-4 rounded-lg sm:rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 search-submit-btn min-h-[44px] text-xs sm:text-sm"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 sm:py-3.5 px-3 sm:px-4 rounded-lg sm:rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 min-h-[44px] text-xs sm:text-sm md:py-2.5 md:text-sm md:shadow-md md:hover:shadow-lg md:hover:scale-100"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -212,7 +511,7 @@ export default function SearchForm() {
                 </button>
               ) : (
                 <div className="animate-fadeIn">
-                  <label htmlFor="codigo-promo" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-center" style={{ color: '#000000' }}>
+                  <label htmlFor="codigo-promo" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-center text-gray-900">
                     Código Promocional
                     <span className="text-xs font-normal text-gray-500 ml-1">(Opcional)</span>
                   </label>
@@ -258,7 +557,7 @@ export default function SearchForm() {
             </button>
           ) : (
             <div className="animate-fadeIn">
-              <label htmlFor="codigo-promo-mobile" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5" style={{ color: '#000000' }}>
+              <label htmlFor="codigo-promo-mobile" className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 text-gray-900">
                 Código Promocional
                 <span className="text-xs font-normal text-gray-500 ml-1">(Opcional)</span>
               </label>

@@ -6,6 +6,7 @@ import WhatsAppFloatButton from '@/components/WhatsAppFloatButton'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
+import WelcomeScreen from '@/components/WelcomeScreen'
 
 /**
  * Página Principal - E-commerce de Destinos
@@ -19,6 +20,9 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <main className="min-h-screen">
+      {/* WelcomeScreen solo en Home (menos fricción en el resto del sitio) */}
+      <WelcomeScreen />
+
       {/* Navbar */}
       <Navbar />
       

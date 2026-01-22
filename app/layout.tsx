@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
 import { COMPANY_INFO } from '@/lib/config'
-import WelcomeScreen from '@/components/WelcomeScreen'
 
 // Configuración de fuentes - Tipografía clara y accesible
 const inter = Inter({ 
@@ -110,7 +109,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content={COMPANY_INFO.name} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <WelcomeScreen />
         {children}
       </body>
     </html>
