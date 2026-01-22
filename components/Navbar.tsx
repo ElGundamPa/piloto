@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 /**
@@ -18,6 +18,22 @@ import { usePathname } from 'next/navigation'
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+
+  // UX móvil: bloquear scroll cuando el menú está abierto
+  useEffect(() => {
+    if (!isOpen) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [isOpen])
+
+  // UX: cerrar el menú al navegar
+  useEffect(() => {
+    setIsOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   // Función para determinar si un link está activo
   const isActive = (path: string) => {
@@ -101,45 +117,51 @@ export default function Navbar() {
       </nav>
 
       {/* Menú móvil desplegable - Mejorado y responsive */}
-      {isOpen && (
-        <>
-          {/* Overlay oscuro para cerrar menú al hacer click fuera */}
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-          {/* 
-            Nota UX: `top-18/top-20/top-22` no son clases Tailwind estándar.
-            Usamos valores arbitrarios válidos para mantener el mismo “offset” visual bajo el navbar fijo.
-          */}
-          <div className="fixed top-[72px] sm:top-[80px] md:top-[88px] lg:top-[96px] left-1/2 transform -translate-x-1/2 z-40 w-full max-w-5xl px-3 sm:px-4 animate-fade-in">
-            <div className="bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-3 sm:p-4 border border-gray-200/50">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`block px-5 py-3.5 rounded-xl font-medium transition-all duration-300 mb-2 min-h-[44px] flex items-center ${
-                    isActive(item.href)
-                      ? 'bg-primary-600 text-white shadow-md font-semibold'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+      {/* Mantener montado para animación fluida (sin salto) */}
+      <div className="lg:hidden">
+        {/* Overlay */}
+        <div
+          className={`fixed inset-0 bg-black/25 backdrop-blur-sm z-30 transition-opacity duration-200 ease-out ${
+            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+
+        {/* Dropdown */}
+        <div
+          className={`fixed z-40 transition-all duration-200 ease-out
+            left-3 right-3 px-0
+            sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-5xl sm:px-3
+            ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}
+          `}
+          style={{
+            top: 'calc(env(safe-area-inset-top) + 72px)',
+          }}
+        >
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 sm:p-4 border border-gray-200/50">
+            {navItems.map((item) => (
               <Link
-                href="/cotizar"
-                onClick={() => setIsOpen(false)}
-                className="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 mt-4 min-h-[44px] flex items-center justify-center"
+                key={item.href}
+                href={item.href}
+                className={`block px-5 py-3 rounded-xl font-medium transition-colors duration-200 mb-2 min-h-[44px] flex items-center ${
+                  isActive(item.href)
+                    ? 'bg-primary-600 text-white shadow-md font-semibold'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
               >
-                COTIZAR
+                {item.label}
               </Link>
-            </div>
+            ))}
+            <Link
+              href="/cotizar"
+              className="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 mt-3 min-h-[44px] flex items-center justify-center"
+            >
+              COTIZAR
+            </Link>
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </>
   )
 }
