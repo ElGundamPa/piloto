@@ -57,13 +57,13 @@ export default function Navbar() {
         <div className="bg-white/95 backdrop-blur-xl rounded-lg sm:rounded-xl shadow-lg border border-gray-200/50">
           <div className="flex items-center justify-between px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5">
             {/* Logo a la izquierda */}
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="flex items-center md:flex-shrink-0 hover:opacity-90 transition-opacity duration-300"
               aria-label="Ir al inicio"
             >
               <Image
-                src="/logos/logo.png"
+                src="/logos/logo sin fondo.png"
                 alt="Next Station Travel"
                 width={140}
                 height={40}
@@ -78,11 +78,10 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-lg font-medium text-xs transition-all duration-300 min-h-[36px] flex items-center ${
-                    isActive(item.href)
-                      ? 'bg-primary-600 text-white shadow-md scale-105 font-semibold'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg font-medium text-xs transition-all duration-300 min-h-[36px] flex items-center ${isActive(item.href)
+                    ? 'bg-primary-600 text-white shadow-md scale-105 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -92,7 +91,7 @@ export default function Navbar() {
             {/* Botón Cotizar - Desktop mejorado */}
             <Link
               href="/cotizar"
-              className="hidden lg:flex items-center gap-1.5 px-4 py-1.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 min-h-[36px]"
+              className="hidden lg:flex items-center gap-1.5 px-4 py-1.5 border-2 border-secondary-500 text-secondary-500 hover:bg-secondary-500 hover:text-white font-semibold text-xs rounded-lg transition-colors duration-200 min-h-[36px]"
             >
               COTIZAR
             </Link>
@@ -121,9 +120,8 @@ export default function Navbar() {
       <div className="lg:hidden">
         {/* Overlay */}
         <div
-          className={`fixed inset-0 bg-black/25 backdrop-blur-sm z-30 transition-opacity duration-200 ease-out ${
-            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          }`}
+          className={`fixed inset-0 bg-black/25 backdrop-blur-sm z-30 transition-opacity duration-200 ease-out ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
@@ -144,11 +142,10 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block px-5 py-3 rounded-xl font-medium transition-colors duration-200 mb-2 min-h-[44px] flex items-center ${
-                  isActive(item.href)
-                    ? 'bg-primary-600 text-white shadow-md font-semibold'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`block px-5 py-3 rounded-xl font-medium transition-colors duration-200 mb-2 min-h-[44px] flex items-center ${isActive(item.href)
+                  ? 'bg-primary-600 text-white shadow-md font-semibold'
+                  : 'text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 {item.label}
               </Link>

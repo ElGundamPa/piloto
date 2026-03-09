@@ -493,7 +493,7 @@ export default function SearchForm() {
                   className="w-full group relative cursor-pointer"
                   aria-label="Abrir código promocional"
                 >
-                  <div className="flex items-center justify-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border border-primary-200/60 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-100 hover:to-primary-150 transition-all duration-300 hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
+                  <div className="flex items-center justify-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border border-primary-200/60 hover:border-primary-300 hover:bg-gradient-to-r hover:from-primary-100 hover:to-primary-200 transition-all duration-300 hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98]">
                     {/* Icono de etiqueta/descuento */}
                     <div className="relative flex-shrink-0">
                       <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600 group-hover:text-primary-700 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,7 +539,7 @@ export default function SearchForm() {
               className="w-full group relative cursor-pointer"
               aria-label="Abrir código promocional"
             >
-              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border border-primary-200/60 active:border-primary-300 active:bg-gradient-to-r active:from-primary-100 active:to-primary-150 transition-all duration-300 active:shadow-md transform active:scale-[0.98]">
+              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-xl border border-primary-200/60 active:border-primary-300 active:bg-gradient-to-r active:from-primary-100 active:to-primary-200 transition-all duration-300 active:shadow-md transform active:scale-[0.98]">
                 {/* Icono de etiqueta/descuento */}
                 <div className="relative flex-shrink-0">
                   <svg className="w-5 h-5 text-primary-600 group-active:text-primary-700 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

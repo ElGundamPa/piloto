@@ -1,19 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Poppins } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { COMPANY_INFO } from '@/lib/config'
 
 // Configuración de fuentes - Tipografía clara y accesible
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-  display: 'swap',
-})
-
-const poppins = Poppins({ 
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-poppins',
   display: 'swap',
 })
 
@@ -40,7 +33,7 @@ export const metadata: Metadata = {
     description: COMPANY_INFO.description,
     images: [
       {
-        url: '/logos/logo con cuadrado.png',
+        url: '/logos/logo fondo blanco.jpeg',
         width: 512,
         height: 512,
         alt: COMPANY_INFO.name,
@@ -51,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: COMPANY_INFO.name,
     description: COMPANY_INFO.description,
-    images: ['/logos/logo con cuadrado.png'],
+    images: ['/logos/logo fondo blanco.jpeg'],
   },
   robots: {
     index: true,
@@ -72,12 +65,12 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/logos/logo.png', sizes: 'any' },
-      { url: '/logos/logo con cuadrado.png', sizes: '192x192', type: 'image/png' },
-      { url: '/logos/logo con cuadrado.png', sizes: '512x512', type: 'image/png' },
+      { url: '/logos/logo fondo blanco.jpeg', sizes: 'any' },
+      { url: '/logos/logo fondo blanco.jpeg', sizes: '192x192', type: 'image/jpeg' },
+      { url: '/logos/logo fondo blanco.jpeg', sizes: '512x512', type: 'image/jpeg' },
     ],
     apple: [
-      { url: '/logos/logo con cuadrado.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logos/logo fondo blanco.jpeg', sizes: '180x180', type: 'image/jpeg' },
     ],
   },
 }
@@ -89,8 +82,8 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0073e6' },
-    { media: '(prefers-color-scheme: dark)', color: '#005bb3' },
+    { media: '(prefers-color-scheme: light)', color: '#2D4E9E' },
+    { media: '(prefers-color-scheme: dark)', color: '#254080' },
   ],
 }
 

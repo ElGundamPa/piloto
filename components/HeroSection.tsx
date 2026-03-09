@@ -147,12 +147,12 @@ export default function HeroSection() {
   }, [shouldLoadVideo])
 
   return (
-    <section 
+    <section
       className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden pt-20 sm:pt-24 md:pt-32 lg:pt-40 pb-12 sm:pb-16 md:pb-20"
       aria-label="Sección principal"
     >
       {/* Fondo base inmediato: evita "gris" mientras cargan imagen/video */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-400" />
 
       {/* Fondo ligero (optimizado por Next/Image) para paint rápido */}
       <div className="absolute inset-0">
@@ -167,7 +167,7 @@ export default function HeroSection() {
           aria-hidden="true"
         />
       </div>
-      
+
       {/* Video de fondo */}
       <video
         ref={videoRef}
@@ -199,14 +199,14 @@ export default function HeroSection() {
             Descubre Colombia
           </h1>
           <p className="hero-subtitle max-w-4xl mx-auto px-2 sm:px-4 animate-fade-in-delay">
-            Encuentra tu viaje perfecto al lugar que deseas. 
+            Encuentra tu viaje perfecto al lugar que deseas.
             <span className="block mt-2 font-medium">Experiencias únicas diseñadas para ti.</span>
           </p>
         </div>
 
         {/* Formulario de búsqueda - Aparece con animación */}
-        <div 
-          className="w-full max-w-6xl mx-auto px-3 sm:px-4 animate-fade-in" 
+        <div
+          className="w-full max-w-6xl mx-auto px-3 sm:px-4 animate-fade-in"
           style={{ animationDelay: '200ms' }}
         >
           <SearchForm />
@@ -215,10 +215,10 @@ export default function HeroSection() {
 
       {/* Indicador de scroll */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-10">
-        <svg 
-          className="w-6 h-6 text-white/60" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className="w-6 h-6 text-white/60"
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"
         >

@@ -97,11 +97,11 @@ export default function WelcomeScreen() {
     setPhase('loading')
     setTakeoffProgress(0)
     const duration = 2400 // duración total de la carga
-    
+
     const animate = () => {
       const elapsed = Date.now() - (startTimeRef.current || 0)
       const newProgress = Math.min((elapsed / duration) * 100, 100)
-      
+
       setProgress(newProgress)
 
       if (newProgress < 100) {
@@ -198,27 +198,25 @@ export default function WelcomeScreen() {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-500 flex items-center justify-center transition-opacity duration-700 ${
-        isExiting ? 'opacity-0' : isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={`fixed inset-0 z-[100] bg-gradient-to-br from-primary-600 via-primary-500 to-primary-400 flex items-center justify-center transition-opacity duration-700 ${isExiting ? 'opacity-0' : isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
       role="dialog"
       aria-modal="true"
       aria-label="Pantalla de bienvenida"
     >
       {/* Contenido principal */}
       <div
-        className={`text-center px-6 max-w-md transition-all duration-700 ${
-          isExiting
-            ? 'opacity-0 translate-y-8 scale-[0.98] blur-[1px]'
-            : isVisible
+        className={`text-center px-6 max-w-md transition-all duration-700 ${isExiting
+          ? 'opacity-0 translate-y-8 scale-[0.98] blur-[1px]'
+          : isVisible
             ? 'opacity-100 translate-y-0 scale-100'
             : 'opacity-0 translate-y-8 scale-[0.98] blur-[1px]'
-        }`}
+          }`}
       >
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Image
-            src="/logos/logo inicio.png"
+            src="/logos/logo sin fondo.png"
             alt="Next Station Travel"
             width={120}
             height={120}
@@ -230,35 +228,32 @@ export default function WelcomeScreen() {
         {/* Mensajes con animación secuencial */}
         <div className="space-y-4 mb-8">
           <h1
-            className={`text-4xl md:text-5xl font-bold text-white font-display transition-all duration-700 delay-200 ${
-              isExiting
-                ? 'opacity-0 translate-y-4'
-                : isVisible
+            className={`text-4xl md:text-5xl font-bold text-white font-display transition-all duration-700 delay-200 ${isExiting
+              ? 'opacity-0 translate-y-4'
+              : isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-4'
-            }`}
+              }`}
           >
             Empieza
           </h1>
           <h2
-            className={`text-2xl md:text-3xl font-semibold text-white/90 font-display transition-all duration-700 delay-400 ${
-              isExiting
-                ? 'opacity-0 translate-y-4'
-                : isVisible
+            className={`text-2xl md:text-3xl font-semibold text-white/90 font-display transition-all duration-700 delay-400 ${isExiting
+              ? 'opacity-0 translate-y-4'
+              : isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-4'
-            }`}
+              }`}
           >
             Empieza tu nueva aventura
           </h2>
           <p
-            className={`text-lg md:text-xl text-white/80 leading-relaxed transition-all duration-700 delay-600 ${
-              isExiting
-                ? 'opacity-0 translate-y-4'
-                : isVisible
+            className={`text-lg md:text-xl text-white/80 leading-relaxed transition-all duration-700 delay-600 ${isExiting
+              ? 'opacity-0 translate-y-4'
+              : isVisible
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-4'
-            }`}
+              }`}
           >
             Encuentra tu viaje perfecto al lugar que deseas
           </p>
@@ -309,13 +304,12 @@ export default function WelcomeScreen() {
       <button
         ref={skipButtonRef}
         onClick={handleSkip}
-        className={`absolute top-6 right-6 px-4 py-2 text-white/80 hover:text-white text-sm font-medium transition-all duration-300 delay-1000 z-10 ${
-          isExiting
-            ? 'opacity-0 translate-y-2'
-            : isVisible
+        className={`absolute top-6 right-6 px-4 py-2 text-white/80 hover:text-white text-sm font-medium transition-all duration-300 delay-1000 z-10 ${isExiting
+          ? 'opacity-0 translate-y-2'
+          : isVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 translate-y-2'
-        }`}
+          }`}
         aria-label="Saltar presentación"
       >
         Saltar

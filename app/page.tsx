@@ -7,35 +7,29 @@ import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
 import WelcomeScreen from '@/components/WelcomeScreen'
+import OfertasDestacadas from '@/components/OfertasDestacadas'
+import StatsCounter from '@/components/StatsCounter'
+import Testimonios from '@/components/Testimonios'
+import FAQ from '@/components/FAQ'
 
-/**
- * Página Principal - E-commerce de Destinos
- * 
- * Estructura diseñada siguiendo principios de UI/UX:
- * - Ley de Hick: Grid claro de destinos (decisiones simples)
- * - Diseño escaneable: Patrón F/Z visual
- * - Mobile-first responsive design
- * - Experiencia tipo e-commerce moderna
- */
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* WelcomeScreen solo en Home (menos fricción en el resto del sitio) */}
       <WelcomeScreen />
-
-      {/* Navbar */}
       <Navbar />
       
-      {/* Hero Section - Inspiración inicial */}
+      {/* Hero Section */}
       <HeroSection />
+
+      {/* Ofertas especiales */}
+      <OfertasDestacadas />
       
-      {/* Grid de Destinos - Estilo E-commerce */}
+      {/* Grid de Destinos */}
       <section 
-        className="section bg-white"
+        className="section bg-gray-50"
         aria-labelledby="destinos-heading"
       >
         <div className="container-custom">
-          {/* Encabezado de sección con scroll reveal */}
           <ScrollReveal direction="fade" delay={100}>
             <div className="text-center mb-8 sm:mb-10 md:mb-12">
               <h2 
@@ -52,7 +46,6 @@ export default function Home() {
             </div>
           </ScrollReveal>
 
-          {/* Grid de destinos - Layout tipo e-commerce con scroll reveal - Responsive mejorado */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
             {destinos.map((destino, index) => (
               <ScrollReveal key={destino.id} direction="up" delay={index * 100}>
@@ -61,12 +54,11 @@ export default function Home() {
             ))}
           </div>
 
-          {/* CTA para ver todos los destinos */}
           <ScrollReveal direction="fade" delay={300}>
             <div className="text-center">
               <Link 
                 href="/destinos"
-                className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-primary-600 text-white font-semibold text-sm sm:text-base rounded-lg sm:rounded-xl shadow-lg hover:bg-primary-700 transition-all duration-300 transform hover:scale-105 active:scale-98 min-h-[44px] flex items-center justify-center"
+                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-primary-600 text-white font-semibold text-sm sm:text-base rounded-xl shadow-lg hover:bg-primary-700 transition-all duration-300 transform hover:scale-105 active:scale-[0.98] min-h-[44px]"
               >
                 Ver todos los destinos
               </Link>
@@ -74,8 +66,17 @@ export default function Home() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* Contador de estadísticas */}
+      <StatsCounter />
+
+      {/* Testimonios */}
+      <Testimonios />
+
+      {/* FAQ */}
+      <FAQ />
       
-      {/* Botón flotante de WhatsApp - Acceso constante */}
+      {/* Botón flotante de WhatsApp */}
       <WhatsAppFloatButton />
       
       {/* Footer */}

@@ -8,13 +8,13 @@
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    
+
     /* Variables de animación - Sistema de timing consistente */
     --duration-fast: 150ms;
     --duration-normal: 300ms;
     --duration-slow: 500ms;
     --duration-slower: 700ms;
-    
+
     /* Easing functions */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -37,6 +37,7 @@
 
   /* Respeta preferencias de movimiento reducido */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -50,39 +51,26 @@
 
 /* Componentes reutilizables con Tailwind */
 @layer components {
+
   /* Botón primario - Ley de Fitts (grande y accesible) */
   /* Mínimo 44x44px en móvil para cumplir con estándares de accesibilidad */
   .btn-primary {
-    @apply px-8 py-4 min-h-[44px] bg-primary-500 text-white font-semibold rounded-xl 
-           shadow-lg hover:bg-primary-600 active:bg-primary-700 active:scale-[0.98]
-           transition-all duration-300 ease-out transform hover:scale-105 
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-           disabled:hover:scale-100;
+    @apply px-8 py-4 min-h-[44px] bg-primary-500 text-white font-semibold rounded-xl shadow-lg hover:bg-primary-600 active:bg-primary-700 active:scale-[0.98] transition-all duration-300 ease-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100;
   }
 
   /* Botón secundario */
   .btn-secondary {
-    @apply px-8 py-4 min-h-[44px] bg-secondary-500 text-white font-semibold rounded-xl 
-           shadow-lg hover:bg-secondary-600 active:bg-secondary-700 active:scale-[0.98]
-           transition-all duration-300 ease-out transform hover:scale-105 
-           focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    @apply px-8 py-4 min-h-[44px] bg-secondary-600 text-white font-semibold rounded-xl shadow-lg hover:bg-secondary-700 active:bg-secondary-800 active:scale-[0.98] transition-all duration-300 ease-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
   }
 
   /* Botón WhatsApp - Color distintivo y reconocible - Ley de Fitts */
   .btn-whatsapp {
-    @apply px-6 py-3 min-h-[44px] bg-whatsapp text-white font-semibold rounded-xl 
-           shadow-lg hover:shadow-xl hover:bg-[#20BA5A] active:scale-[0.98]
-           transition-all duration-300 ease-out transform hover:scale-105 
-           flex items-center gap-2 justify-center
-           focus:outline-none focus:ring-2 focus:ring-whatsapp focus:ring-offset-2;
+    @apply px-6 py-3 min-h-[44px] bg-whatsapp text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:bg-[#20BA5A] active:scale-[0.98] transition-all duration-300 ease-out transform hover:scale-105 flex items-center gap-2 justify-center focus:outline-none focus:ring-2 focus:ring-whatsapp focus:ring-offset-2;
   }
 
   /* Card con efecto hover - Feedback visual - Ley de Continuidad */
   .card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-xl 
-           transition-all duration-300 ease-out transform hover:-translate-y-1
-           border border-gray-100 cursor-pointer;
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 ease-out transform hover:-translate-y-1 border border-gray-100 cursor-pointer;
   }
 
   /* Input fields - Micro-interacciones mejoradas */
@@ -92,10 +80,7 @@
   input[type="date"],
   textarea,
   select {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-xl
-           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-           transition-all duration-300 ease-out
-           focus:outline-none;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ease-out focus:outline-none;
   }
 
   input[type="text"]:hover,
@@ -128,36 +113,26 @@
 
   /* Heading con jerarquía visual clara - Tipografía moderna unificada - Mobile-first */
   .heading-1 {
-    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 
-           font-bold font-sans 
-           text-gray-900 leading-[1.1] tracking-tight;
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-sans text-gray-900 leading-[1.1] tracking-tight;
   }
 
   .heading-2 {
-    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
-           font-bold font-sans 
-           text-gray-900 mb-4 leading-tight tracking-tight;
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-sans text-gray-900 mb-4 leading-tight tracking-tight;
   }
 
   .heading-3 {
-    @apply text-xl sm:text-2xl md:text-3xl 
-           font-semibold font-sans 
-           text-gray-900 leading-tight;
+    @apply text-xl sm:text-2xl md:text-3xl font-semibold font-sans text-gray-900 leading-tight;
   }
 
   /* Tipografía para hero - Alta legibilidad y animada - Mobile-first */
   .hero-title {
-    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl
-           font-extrabold font-sans
-           leading-[1.1] tracking-tight
-           drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)];
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold font-sans leading-[1.1] tracking-tight;
+    filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.6));
   }
 
   .hero-subtitle {
-    @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
-           font-normal font-sans
-           text-white/95 leading-relaxed
-           drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)];
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-normal font-sans text-white/95 leading-relaxed;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
   }
 
   /* Animaciones para hero - Más dinámicas */
@@ -186,9 +161,12 @@
   }
 
   @keyframes gradient-text {
-    0%, 100% {
+
+    0%,
+    100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -201,6 +179,7 @@
 
 /* Utilidades personalizadas */
 @layer utilities {
+
   /* Animaciones sutiles */
   .animate-on-scroll {
     opacity: 0;
@@ -223,6 +202,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -234,8 +214,8 @@
     transition: opacity 1s ease-in;
   }
 
-  video:not([src]) ~ .video-fallback,
-  video[error] ~ .video-fallback {
+  video:not([src])~.video-fallback,
+  video[error]~.video-fallback {
     opacity: 1;
   }
 
@@ -253,6 +233,7 @@
     0% {
       width: 0%;
     }
+
     100% {
       width: 100%;
     }
@@ -278,18 +259,17 @@
     0% {
       background-position: -200px 0;
     }
+
     100% {
       background-position: calc(200px + 100%) 0;
     }
   }
 
   .skeleton {
-    background: linear-gradient(
-      90deg,
-      #f0f0f0 0px,
-      #f8f8f8 40px,
-      #f0f0f0 80px
-    );
+    background: linear-gradient(90deg,
+        #f0f0f0 0px,
+        #f8f8f8 40px,
+        #f0f0f0 80px);
     background-size: 200px 100%;
     animation: skeleton-loading 1.5s ease-in-out infinite;
   }
@@ -297,7 +277,7 @@
   /* Smooth transitions para elementos que aparecen */
   .transition-appear {
     transition: opacity var(--duration-slow) var(--ease-out),
-                transform var(--duration-slow) var(--ease-out);
+      transform var(--duration-slow) var(--ease-out);
   }
 
   /* Animación slide-up para formulario */
@@ -306,6 +286,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -340,9 +321,12 @@
   }
 
   @keyframes pulse-subtle {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.02);
     }
@@ -355,11 +339,12 @@
 
   .form-input-focus:focus {
     transform: scale(1.02);
-    box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.1);
+    box-shadow: 0 0 0 3px rgba(45, 78, 158, 0.1);
   }
 
   /* Prevenir zoom en iOS al hacer focus */
   @media (max-width: 768px) {
+
     input[type="date"],
     input[type="text"],
     input[type="email"],
@@ -380,6 +365,7 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -390,6 +376,7 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);

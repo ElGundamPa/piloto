@@ -14,19 +14,19 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#0073e6',
+    theme_color: '#2D4E9E',
     orientation: 'portrait-primary',
     icons: [
       {
-        src: '/logos/logo con cuadrado.png',
+        src: '/logos/logo fondo blanco.jpeg',
         sizes: '192x192',
-        type: 'image/png',
+        type: 'image/jpeg',
         purpose: 'maskable'
       },
       {
-        src: '/logos/logo con cuadrado.png',
+        src: '/logos/logo fondo blanco.jpeg',
         sizes: '512x512',
-        type: 'image/png',
+        type: 'image/jpeg',
         purpose: 'any'
       }
     ],
